@@ -1,6 +1,7 @@
 library(readxl)
 library(factoextra)
 library(NbClust)
+library(ggplot2)
 
 
 #read in the data
@@ -62,18 +63,21 @@ fviz_nbclust(scaled_vehicle_data_inputs, kmeans, method = "wss") + labs(subtitle
 #Silhouette Method
 fviz_nbclust(scaled_vehicle_data_inputs, kmeans, method = "silhouette") + labs(subtitle = "Silhouette")
 #Gap statistic Method
-fviz_nbclust(scaled_vehicle_data_inputs, kmeans, method = "gap_stat") + labs(subtitle = "Gap statistic")
+fviz_nbclust(scaled_vehicle_data_inputs, kmeans, method = "gap_stat", verbose = F) + labs(subtitle = "Gap statistic")
 
 
 ## KMEANS ANALYSIS ##
+#Manual
 manual_kmean <- kmeans(scaled_vehicle_data_inputs, centers = manual_cluster_size)
-clusplot(scaled_vehicle_data_inputs, manual_kmean$cluster, color = T, shade = T)
+clusplot(scaled_vehicle_data, manual_kmean$cluster, color = T, shade = T, labels = 4)
 plot(manual_kmean$centers, pch = 2, col = "green")
 
+#Elbow
+elbow_kmean <- kmeans(scaled_vehicle_data_inputs, centers = 3)
+clusplot(scaled_vehicle_data, elbow_kmean$cluster, color = T, shade = T, labels = 4)
+plot(elbow_kmean$centers, pch = 2, col = "green")
 
-
-
-
-
-
-
+#Silhouette & Gap Stat
+silhouette_gap_kmean <- kmeans(scaled_vehicle_data_inputs, centers = 2)
+clusplot(scaled_vehicle_data, silhouette_gap_kmean$cluster, color = T, shade = T, labels = 4)
+plot(silhouette_gap_kmean$centers, pch = 2, col = "green")
