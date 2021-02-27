@@ -14,6 +14,10 @@ sum(is.na(vehicle_data))
 vehicle_data_output_features <- vehicle_data[c("Class")]
 vehicle_data_input_features <- vehicle_data[c(-ncol(vehicle_data))]
 
+
+
+# DATA PREPROCESSING SECTION #
+
 #normalize the input features
 scaled_vehicle_data <- apply(vehicle_data_input_features, 2, scale)
 
@@ -45,3 +49,13 @@ for (outlier in have_outliers) {
 
 #plot box plot again to check whether outliers have been removed
 boxplot(scaled_vehicle_data, las = 2, col = c("lightgreen", "lightblue"), ylab = "Normalized Values")
+
+
+
+# KMEANS ANALYSIS - MANUAL CLUSTER SIZE #
+
+
+
+
+
+# KMEANS ANALYSIS - AUTOMATED CLUSTER SIZE #
