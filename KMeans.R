@@ -1,7 +1,9 @@
 library(readxl)
 library(factoextra)
 library(NbClust)
+library(caret)
 library(ggplot2)
+library(cluster)
 
 
 #read in the data
@@ -59,7 +61,7 @@ boxplot(scaled_vehicle_data_inputs, las = 2, col = c("lightgreen", "lightblue"),
 #Manual
 manual_cluster_size <- 4
 #Elbow Method
-fviz_nbclust(scaled_vehicle_data_inputs, kmeans, method = "wss") + labs(subtitle = "Elbow")
+fviz_nbclust(scaled_vehicle_data_inputs, kmeans, method = "wss") geo_p + labs(subtitle = "Elbow")
 #Silhouette Method
 fviz_nbclust(scaled_vehicle_data_inputs, kmeans, method = "silhouette") + labs(subtitle = "Silhouette")
 #Gap statistic Method
@@ -67,17 +69,28 @@ fviz_nbclust(scaled_vehicle_data_inputs, kmeans, method = "gap_stat", verbose = 
 
 
 ## KMEANS ANALYSIS ##
+set.seed(101)
 #Manual
-manual_kmean <- kmeans(scaled_vehicle_data_inputs, centers = manual_cluster_size)
+manual_kmean <- kmeans(scaled_vehicle_data_inputs, centers = manual_cluster_size, nstart = 50)
 clusplot(scaled_vehicle_data, manual_kmean$cluster, color = T, shade = T, labels = 4)
-plot(manual_kmean$centers, pch = 2, col = "green")
+comparison_table_manual <- table(manual_kmean$cluster, scaled_vehicle_data_output$Class)
 
+set.seed(102)
 #Elbow
-elbow_kmean <- kmeans(scaled_vehicle_data_inputs, centers = 3)
+elbow_kmean <- kmeans(scaled_vehicle_data_inputs, centers = 4, nstart = 50)
 clusplot(scaled_vehicle_data, elbow_kmean$cluster, color = T, shade = T, labels = 4)
-plot(elbow_kmean$centers, pch = 2, col = "green")
+comparison_table_elbow <- table(elbow_kmean$cluster, scaled_vehicle_data_output$Class)
 
+set.seed(103)
 #Silhouette & Gap Stat
-silhouette_gap_kmean <- kmeans(scaled_vehicle_data_inputs, centers = 2)
+silhouette_gap_kmean <- kmeans(scaled_vehicle_data_inputs, centers = 2, nstart = 50)
 clusplot(scaled_vehicle_data, silhouette_gap_kmean$cluster, color = T, shade = T, labels = 4)
-plot(silhouette_gap_kmean$centers, pch = 2, col = "green")
+comparison_table_silhouette_gap <- table(silhouette_gap_kmean$cluster, scaled_vehicle_data_output$Class)
+
+#Visualize data and classes
+ggplot(scaled_vehicle_data, aes(Rad.Ra, Pr.Axis.Ra)) + geom_point(aes(col=Class), size = 3)
+
+#table evaluations for each method
+comparison_table_manual
+comparison_table_elbow
+comparison_table_silhouette_gap
