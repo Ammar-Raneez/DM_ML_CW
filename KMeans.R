@@ -1,61 +1,79 @@
 library(readxl)
-library(ggstatsplot)
+library(factoextra)
+library(NbClust)
+
 
 #read in the data
 vehicle_data <- read_excel("../../vehicles.xlsx")
-
+#remove samples column due to it only being a counter
+vehicle_data <- vehicle_data[c(-1)] 
 #data type
 class(vehicle_data)
-
 #any missing values?
 sum(is.na(vehicle_data))
 
-#separate inputs and outputs
-vehicle_data_output_features <- vehicle_data[c("Class")]
-vehicle_data_input_features <- vehicle_data[c(-ncol(vehicle_data))]
 
-
-
-# DATA PREPROCESSING SECTION #
-
+## DATA PREPROCESSING SECTION ##
 #normalize the input features
-scaled_vehicle_data <- apply(vehicle_data_input_features, 2, scale)
+scaled_vehicle_data <- apply(vehicle_data[-c(ncol(vehicle_data))], 2, scale)
+#bind the class column back into the normalized data set
+scaled_vehicle_data <- cbind(scaled_vehicle_data, vehicle_data[c(ncol(vehicle_data))])
 
 #visualize outliers of data set
-boxplot(scaled_vehicle_data, las = 2, col = c("lightgreen", "lightblue"), ylab = "Normalized Values")
+boxplot(scaled_vehicle_data[-c(ncol(vehicle_data))], las = 2, col = c("lightgreen", "lightblue"), ylab = "Normalized Values")
 #Based on box plot, following columns have outliers
 have_outliers <- c("Rad.Ra", "Pr.Axis.Ra", "Max.L.Ra", "Pr.Axis.Rect", "Sc.Var.Maxis", "Sc.Var.maxis", "Skew.Maxis", "Skew.maxis", "Kurt.maxis")
 
 #loop through all the columns that have outliers
 for (outlier in have_outliers) {
   number_of_rows = nrow(scaled_vehicle_data)
-  #get quantile values
-  quant <- quantile(scaled_vehicle_data[1:number_of_rows, outlier], probs = c(0.25, 0.75))
+  
+  #get quantile values - 25th and 75th percentiles
+  quant <- quantile(scaled_vehicle_data[, outlier], probs = c(0.25, 0.75))
   
   #calculate IQR for the respective columns
   iqr <- IQR(scaled_vehicle_data[1:number_of_rows, outlier])
   
-  #An outlier is a point below, lower quartile and above upper quartile
+  #An outlier is a point below lower quartile and above upper quartile
   upper_quartile <- quant[2] + 1.5*iqr
   lower_quartile <- quant[1] - 1.5*iqr
   
   #subset the data set, such that the outliers are filtered out
   scaled_vehicle_data <- subset(
     scaled_vehicle_data, 
-    scaled_vehicle_data[1:number_of_rows, outlier] > lower_quartile & 
-      scaled_vehicle_data[1:number_of_rows, outlier] < upper_quartile
+    scaled_vehicle_data[c(-ncol(vehicle_data))][, outlier] > lower_quartile & 
+      scaled_vehicle_data[c(-ncol(vehicle_data))][, outlier] < upper_quartile
   ) 
 }
 
+#data set can now be split into input and output
+scaled_vehicle_data_inputs <- scaled_vehicle_data[c(-ncol(vehicle_data))]
+scaled_vehicle_data_output <- scaled_vehicle_data[c(ncol(vehicle_data))]
+
 #plot box plot again to check whether outliers have been removed
-boxplot(scaled_vehicle_data, las = 2, col = c("lightgreen", "lightblue"), ylab = "Normalized Values")
+boxplot(scaled_vehicle_data_inputs, las = 2, col = c("lightgreen", "lightblue"), ylab = "Normalized Values")
+
+
+## KMEANS CLUSTER DEFINITION ##
+#Manual
+manual_cluster_size <- 4
+#Elbow Method
+fviz_nbclust(scaled_vehicle_data_inputs, kmeans, method = "wss") + labs(subtitle = "Elbow")
+#Silhouette Method
+fviz_nbclust(scaled_vehicle_data_inputs, kmeans, method = "silhouette") + labs(subtitle = "Silhouette")
+#Gap statistic Method
+fviz_nbclust(scaled_vehicle_data_inputs, kmeans, method = "gap_stat") + labs(subtitle = "Gap statistic")
+
+
+## KMEANS ANALYSIS ##
+manual_kmean <- kmeans(scaled_vehicle_data_inputs, centers = manual_cluster_size)
+clusplot(scaled_vehicle_data_inputs, manual_kmean$cluster, color = T, shade = T)
+plot(manual_kmean$centers, pch = 2, col = "green")
 
 
 
-# KMEANS ANALYSIS - MANUAL CLUSTER SIZE #
 
 
 
 
 
-# KMEANS ANALYSIS - AUTOMATED CLUSTER SIZE #
