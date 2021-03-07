@@ -101,7 +101,7 @@ comparison_table_silhouette_gap <- table(scaled_vehicle_data_output$Class, silho
 ground_truth_as_factor <- as.factor(scaled_vehicle_data_output$Class)
 #predictions_as_factor <- as.factor(manual_kmean$cluster)
 #predictions_as_factor <- as.factor(elbow_kmean$cluster)
-predictions_as_factor <- as.factor(silhouette_gap_kmean$cluster)
+predictions_as_factor <- as.factor(elbow_kmean$cluster)
 
 #since the predictions comes out as 1,2,3,4, The categorical data of the ground truth is converted to numerical
 ground_truth_as_numeric <- as.numeric(ground_truth_as_factor)
