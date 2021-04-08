@@ -13,6 +13,8 @@ library(funtimes)
 
 #read in the data
 vehicle_data <- read_excel("../../vehicles.xlsx") %>% 
+  # R variable convention (underscore separation)
+  # %>% get result and pass to
   janitor::clean_names() %>% 
   mutate(class = as_factor(class))
 
