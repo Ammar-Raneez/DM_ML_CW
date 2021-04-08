@@ -6,23 +6,26 @@ library(Metrics)
 
 exchange_data <- read_excel("../../ExchangeUSD.xlsx")
 
+
 # remove second unneeded column
 exchange_data <- exchange_data[c(-2)] 
 # convert date into time series
 exchange_data <- ts(exchange_data)
 exchange_data <- as.data.frame(exchange_data)
-
 # rename col names for easiness
 colnames(exchange_data) <- c("date", "rate")
+
 
 # scale the exchange rates
 maxs <- apply(exchange_data, 2, max)
 mins <- apply(exchange_data, 2, min)
 scaled_exchange_data <- as.data.frame(scale(exchange_data, center = mins, scale = maxs - mins))
 
+
 # split into training and test
 train <- scaled_exchange_data[0:400,]
 test <- scaled_exchange_data[401:500,]
+
 
 # Two hidden layers
 # implement many neural networks with different hyper parameter values
@@ -123,12 +126,11 @@ colnames(nn_best_single_test_prediction_df) <- c("date", "rate")
 plot(nn_best_single)
 
 
-# best 2 layer network: trial 4
+# best 2 hidden layer network: trial 4
 set.seed(104) 
 nn_best_double <- neuralnet(rate ~ date, data = train, hidden = c(6, 6), act.fct = "logistic", err.fct = "sse", lifesign = "full", learningrate = 0.08, rep = 10, linear.output = T)
 nn_best_double.test_prediction <- predict(nn_best_double, test)
 nn_best_double.train_prediction <- predict(nn_best_double, train)
-
 
 nn_best_double_train_prediction_df <- data.frame(train[, 1], nn_best_double.train_prediction)
 colnames(nn_best_double_train_prediction_df) <- c("date", "rate")
@@ -136,7 +138,6 @@ colnames(nn_best_double_train_prediction_df) <- c("date", "rate")
 nn_best_double_test_prediction_df <- data.frame(test[, 1], nn_best_double.test_prediction)
 colnames(nn_best_double_test_prediction_df) <- c("date", "rate")
 plot(nn_best_double)
-
 
 
 # plot graph of best network
