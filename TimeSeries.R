@@ -22,9 +22,17 @@ mins <- apply(exchange_data, 2, min)
 scaled_exchange_data <- as.data.frame(scale(exchange_data, center = mins, scale = maxs - mins))
 
 # plot the rates to check whether stationary
-plot(exchange_data[c(2)])
+# plot(exchange_data[c(2)])
+copy_a <- scaled_exchange_data
 
 
+scaled_exchange_data <- as.ts(scaled_exchange_data[, 2])
+AR <- arima(scaled_exchange_data[0:400], order = c(1, 0, 0))
+ts.plot(scaled_exchange_data[0:500])
+AR_fit <- scaled_exchange_data[0:400] - residuals(AR)
+lines(AR_fit, col = "red")
+predicted <- predict(AR, n.ahead = 100)
+lines(predicted$pred, col = "red")
 
 
 ### TWO HIDDEN LAYERS
@@ -169,15 +177,8 @@ trial19_metrics <- perfom_neuralnet_calculations_one(104, 4, "tanh", 0.08)
 
 ### BEST SINGLE HIDDEN LAYER NETWORK
 set.seed(104) 
-nn_best_single <- neuralnet(rate ~ date, data = train, hidden = c(3), act.fct = "logistic", err.fct = "sse", lifesign = "full", learningrate = 0.08, rep = 10, linear.output = T)
-nn_best_single.test_prediction <- predict(nn_best_single, test)
-nn_best_single.train_prediction <- predict(nn_best_single, train)
-
-nn_best_single_train_prediction_df <- data.frame(train[, 1], nn_best_single.train_prediction)
-colnames(nn_best_single_train_prediction_df) <- c("date", "rate")
-
-nn_best_single_test_prediction_df <- data.frame(test[, 1], nn_best_single.test_prediction)
-colnames(nn_best_single_test_prediction_df) <- c("date", "rate")
+nn_best_single <- neuralnet(rate ~ rate_1, data = train_hidden_1, hidden = c(4), act.fct = "logistic", err.fct = "sse", lifesign = "full", learningrate = 0.08, rep = 10, linear.output = T)
+nn_best_single.test_prediction <- predict(nn_best_single, test_hidden_1)
 plot(nn_best_single)
 
 
@@ -185,27 +186,20 @@ plot(nn_best_single)
 
 ### BEST TWO HIDDEN LAYER NETWORK
 set.seed(104)
-nn_best_double <- neuralnet(rate ~ rate_1, data = train, hidden = c(4, 4), act.fct = "logistic", err.fct = "sse", lifesign = "full", learningrate = 0.08, rep = 10, linear.output = T)
-nn_best_double.test_prediction <- predict(nn_best_double, test)
-nn_best_double.train_prediction <- predict(nn_best_double, train)
-
-nn_best_double_train_prediction_df <- data.frame(train[, 1], nn_best_double.train_prediction)
-colnames(nn_best_double_train_prediction_df) <- c("date", "rate")
-
-nn_best_double_test_prediction_df <- data.frame(test[, 1], nn_best_double.test_prediction)
-colnames(nn_best_double_test_prediction_df) <- c("date", "rate")
+nn_best_double <- neuralnet(rate ~ rate_1, data = train_hidden_2, hidden = c(4, 4), act.fct = "logistic", err.fct = "sse", lifesign = "full", learningrate = 0.08, rep = 10, linear.output = T)
+nn_best_double.test_prediction <- predict(nn_best_double, test_hidden_2)
 plot(nn_best_double)
 
 
-
+test_hidden_2[,1]
 
 # plot graph of best network
-plot(scaled_exchange_data, type = "l", col = "lightblue", lwd = 2)
-lines(nn_best_single_train_prediction_df, type = "l", col = "gold", lwd = 2)
-lines(nn_best_single_test_prediction_df, type = "l", col = "red", lwd = 2)
-title("Actual VS Predicted")
+plot(test_hidden_2[, 1], type = "l", col = "blue", lwd = 2, xlab = "index", ylab = "Rates")
+lines(nn_best_single.test_prediction, type = "l", col = "red", lwd = 2)
+title("AR(1) Time Series - Two Hidden Layers")
+legend("bottomright", legend = c("Actual", "Predicted"), col = c("blue", "red"), bty = "n", cex=1, lwd = 5, text.font = 7)
 
-plot(scaled_exchange_data, type = "l", col = "lightblue", lwd = 2)
-lines(nn_best_double_train_prediction_df, type = "l", col = "gold", lwd = 2)
-lines(nn_best_double_test_prediction_df, type = "l", col = "red", lwd = 2)
-title("Actual VS Predicted")
+plot(test_hidden_1[, 1], type = "l", col = "blue", lwd = 2, xlab = "index", ylab = "Rates")
+lines(nn_best_double.test_prediction, type = "l", col = "red", lwd = 2)
+title("AR(1) Time Series - Single Hidden Layer")
+legend("bottomright", legend = c("Actual", "Predicted"), col = c("blue", "red"), bty = "n", cex=1, lwd = 5, text.font = 7)
