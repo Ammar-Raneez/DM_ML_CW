@@ -21,11 +21,14 @@ maxs <- apply(exchange_data, 2, max)
 mins <- apply(exchange_data, 2, min)
 scaled_exchange_data <- as.data.frame(scale(exchange_data, center = mins, scale = maxs - mins))
 
+# plot partial autocorrelation plot to check for optimum order of AR ~ however many orders
+# will be tested upon
+pacf(scaled_exchange_data[, 2])
 # plot the rates to check whether stationary
-# plot(exchange_data[c(2)])
+plot(exchange_data[c(2)])
+
+
 copy_a <- scaled_exchange_data
-
-
 scaled_exchange_data <- as.ts(scaled_exchange_data[, 2])
 AR <- arima(scaled_exchange_data[0:400], order = c(1, 0, 0))
 ts.plot(scaled_exchange_data[0:500])
