@@ -28,14 +28,6 @@ pacf(scaled_exchange_data[, 2])
 plot(exchange_data[c(2)])
 
 
-copy_a <- scaled_exchange_data
-scaled_exchange_data <- as.ts(scaled_exchange_data[, 2])
-AR <- arima(scaled_exchange_data[0:400], order = c(1, 0, 0))
-ts.plot(scaled_exchange_data[0:500])
-AR_fit <- scaled_exchange_data[0:400] - residuals(AR)
-lines(AR_fit, col = "red")
-predicted <- predict(AR, n.ahead = 100)
-lines(predicted$pred, col = "red")
 
 
 ### TWO HIDDEN LAYERS
