@@ -174,18 +174,11 @@ trial19_metrics <- perfom_neuralnet_calculations_one(104, 4, "tanh", 0.08)
 
 ### BEST SINGLE HIDDEN LAYER NETWORK
 set.seed(104) 
-nn_best_single <- neuralnet(rate ~ rate_1, data = mlp_df, hidden = c(4), act.fct = "logistic", err.fct = "sse", lifesign = "full", learningrate = 0.08, rep = 10, linear.output = T)
+nn_best_single <- neuralnet(rate ~ rate_1, data = train_hidden_1, hidden = c(4), act.fct = "logistic", err.fct = "sse", lifesign = "full", learningrate = 0.08, rep = 10, linear.output = T)
 nn_best_single.test_prediction <- predict(nn_best_single, test_hidden_1)
 plot(nn_best_single)
-colnames(mlp_df) <- c("rate", "rate_1")
 
 
-times <- as.ts(train_hidden_2[,2])
-mlp_model <- mlp(times, hd = c(4), lags = 1)
-x <- predict(mlp_model, test_hidden_2[,2])
-forecasted <- forecast(mlp_model, h=100)
-plot(forecasted)
-lines(test_hidden_2[, 1])
 
 
 ### BEST TWO HIDDEN LAYER NETWORK

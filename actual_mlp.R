@@ -1,0 +1,6 @@
+times <- as.ts(train_hidden_2[,2])
+mlp_model <- mlp(times, hd = c(4), lags = 1, comb = "mean", difforder = 0)
+x <- predict(mlp_model, test_hidden_2[,2])
+forecasted <- forecast(mlp_model, h=100)
+plot(forecasted)
+lines(scaled_exchange_data[,2])
