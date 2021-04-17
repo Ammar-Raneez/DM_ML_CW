@@ -4,6 +4,8 @@ library(fpp2)
 library(ggplot2)
 library(Metrics)
 library(useful)
+library(nnfor)
+library(forecast)
 
 # import dataset
 exchange_data <- read_excel("../../ExchangeUSD.xlsx")
@@ -172,29 +174,36 @@ trial19_metrics <- perfom_neuralnet_calculations_one(104, 4, "tanh", 0.08)
 
 ### BEST SINGLE HIDDEN LAYER NETWORK
 set.seed(104) 
-nn_best_single <- neuralnet(rate ~ rate_1, data = train_hidden_1, hidden = c(4), act.fct = "logistic", err.fct = "sse", lifesign = "full", learningrate = 0.08, rep = 10, linear.output = T)
+nn_best_single <- neuralnet(rate ~ rate_1, data = mlp_df, hidden = c(4), act.fct = "logistic", err.fct = "sse", lifesign = "full", learningrate = 0.08, rep = 10, linear.output = T)
 nn_best_single.test_prediction <- predict(nn_best_single, test_hidden_1)
 plot(nn_best_single)
+colnames(mlp_df) <- c("rate", "rate_1")
 
 
+times <- as.ts(train_hidden_2[,2])
+mlp_model <- mlp(times, hd = c(4), lags = 1)
+x <- predict(mlp_model, test_hidden_2[,2])
+forecasted <- forecast(mlp_model, h=100)
+plot(forecasted)
+lines(test_hidden_2[, 1])
 
 
 ### BEST TWO HIDDEN LAYER NETWORK
 set.seed(104)
-nn_best_double <- neuralnet(rate ~ rate_1, data = train_hidden_2, hidden = c(4, 4), act.fct = "logistic", err.fct = "sse", lifesign = "full", learningrate = 0.08, rep = 10, linear.output = T)
+nn_best_double <- neuralnet(formula = rate ~ rate_1, data = train_hidden_2, hidden = c(4, 4), act.fct = "logistic", err.fct = "sse", lifesign = "full", learningrate = 0.08, rep = 10, linear.output = T)
 nn_best_double.test_prediction <- predict(nn_best_double, test_hidden_2)
 plot(nn_best_double)
 
 
-test_hidden_2[,1]
+
 
 # plot graph of best network
-plot(test_hidden_2[, 1], type = "l", col = "blue", lwd = 2, xlab = "index", ylab = "Rates")
+plot(test_hidden_1[, 1], type = "l", col = "blue", lwd = 2, xlab = "index", ylab = "Rates")
 lines(nn_best_single.test_prediction, type = "l", col = "red", lwd = 2)
-title("AR(1) Time Series - Two Hidden Layers")
+title("AR(1) Time Series - Single Hidden Layer")
 legend("bottomright", legend = c("Actual", "Predicted"), col = c("blue", "red"), bty = "n", cex=1, lwd = 5, text.font = 7)
 
-plot(test_hidden_1[, 1], type = "l", col = "blue", lwd = 2, xlab = "index", ylab = "Rates")
+plot(test_hidden_2[, 1], type = "l", col = "blue", lwd = 2, xlab = "index", ylab = "Rates")
 lines(nn_best_double.test_prediction, type = "l", col = "red", lwd = 2)
-title("AR(1) Time Series - Single Hidden Layer")
+title("AR(1) Time Series - Two Hidden Layers")
 legend("bottomright", legend = c("Actual", "Predicted"), col = c("blue", "red"), bty = "n", cex=1, lwd = 5, text.font = 7)
