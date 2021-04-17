@@ -22,6 +22,9 @@ colnames(exchange_data) <- c("date", "rate")
 maxs <- apply(exchange_data, 2, max)
 mins <- apply(exchange_data, 2, min)
 scaled_exchange_data <- as.data.frame(scale(exchange_data, center = mins, scale = maxs - mins))
+# a scaling performed in the mlp() function of R
+scaled_rates <- linscale(exchange_data$rate, minmax=list("mn"=-.8,"mx"=0.8))
+scaled_exchange_data$rate <- scaled_rates$x
 
 # plot partial autocorrelation plot to check for optimum order of AR ~ however many orders
 # will be tested upon
