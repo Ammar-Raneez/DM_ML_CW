@@ -11,10 +11,11 @@ library(cluster)
 vehicle_data <- read_excel("../../vehicles.xlsx")
 #remove samples column due to it only being a counter
 vehicle_data <- vehicle_data[c(-1)] 
-#data type
+# data type
 class(vehicle_data)
-#summary(vehicle_data)
-#any missing values?
+# data overview
+summary(vehicle_data)
+# any missing values?
 sum(is.na(vehicle_data))
 
 
@@ -93,18 +94,23 @@ comparison_table_silhouette_gap <- table(scaled_vehicle_data_output$Class, silho
 
 
 #table evaluations for each method
-#comparison_table_manual
-#comparison_table_elbow
-#comparison_table_silhouette_gap
+comparison_table_manual
+comparison_table_elbow
+comparison_table_silhouette_gap
 
 #convert to factors, since confusion matrix expects factors
 ground_truth_as_factor <- as.factor(scaled_vehicle_data_output$Class)
-#predictions_as_factor <- as.factor(manual_kmean$cluster)
-#predictions_as_factor <- as.factor(elbow_kmean$cluster)
-predictions_as_factor <- as.factor(elbow_kmean$cluster)
+predictions_as_factor_manual <- as.factor(manual_kmean$cluster)
+predictions_as_factor_elbow <- as.factor(elbow_kmean$cluster)
+predictions_as_factor_sg <- as.factor(silhouette_gap_kmean$cluster)
 
 #since the predictions comes out as 1,2,3,4, The categorical data of the ground truth is converted to numerical
 ground_truth_as_numeric <- as.numeric(ground_truth_as_factor)
 #the data type has to be changed back to factor, since CM can accept only factors
 ground_truth_as_factor <- as.factor(ground_truth_as_numeric)
-confusionMatrix(data = predictions_as_factor, reference = ground_truth_as_factor, mode = 'prec_recall')
+# plot confusion matrix for all
+confusionMatrix(data = predictions_as_factor_manual, reference = ground_truth_as_factor, mode = 'prec_recall')
+confusionMatrix(data = predictions_as_factor_elbow, reference = ground_truth_as_factor, mode = 'prec_recall')
+confusionMatrix(data = predictions_as_factor_sg, reference = ground_truth_as_factor, mode = 'prec_recall')
+
+elbow_clusters <- elbow_kmean$centers
