@@ -12,7 +12,9 @@ exchange_data <- read_excel("../../ExchangeUSD.xlsx")
 # remove unneeded days column
 exchange_data <- exchange_data[c(-2)] 
 # convert to time-series, so the date is also in a numeric format
+# required for scaling
 exchange_data <- ts(exchange_data)
+# after converting date to numeric convert back into data frame
 exchange_data <- as.data.frame(exchange_data)
 # rename col names for easiness
 colnames(exchange_data) <- c("date", "rate")
@@ -22,9 +24,11 @@ colnames(exchange_data) <- c("date", "rate")
 maxs <- apply(exchange_data, 2, max)
 mins <- apply(exchange_data, 2, min)
 scaled_exchange_data <- as.data.frame(scale(exchange_data, center = mins, scale = maxs - mins))
+
 # a scaling performed in the mlp() function of R
 scaled_rates <- linscale(exchange_data$rate, minmax=list("mn"=-.8,"mx"=0.8))
 scaled_exchange_data$rate <- scaled_rates$x
+
 
 # plot partial autocorrelation plot to check for optimum order of AR ~ however many orders
 # will be tested upon

@@ -69,6 +69,8 @@ fviz_nbclust(scaled_vehicle_data_inputs, kmeans, method = "wss") + labs(subtitle
 fviz_nbclust(scaled_vehicle_data_inputs, kmeans, method = "silhouette") + labs(subtitle = "Silhouette")
 #Gap statistic Method
 fviz_nbclust(scaled_vehicle_data_inputs, kmeans, method = "gap_stat", verbose = F) + labs(subtitle = "Gap statistic")
+#method of majority
+NbClust(data = scaled_vehicle_data_inputs, distance = "euclidean", min.nc = 2, max.nc = 15, method = "kmeans")
 
 
 ## KMEANS ANALYSIS ##
@@ -81,13 +83,13 @@ clusplot(scaled_vehicle_data, manual_kmean$cluster, color = T, shade = T, labels
 comparison_table_manual <- table(scaled_vehicle_data_output$Class, manual_kmean$cluster)
 
 set.seed(102)
-#Elbow
+#Elbow and NbClust proposed 3 clusters
 elbow_kmean <- kmeans(scaled_vehicle_data_inputs, centers = 3, nstart = 50)
 clusplot(scaled_vehicle_data, elbow_kmean$cluster, color = T, shade = T, labels = 4)
 comparison_table_elbow <- table(scaled_vehicle_data_output$Class, elbow_kmean$cluster)
 
 set.seed(103)
-#Silhouette & Gap Stat
+#Silhouette & Gap Stat proposed 2 clusters
 silhouette_gap_kmean <- kmeans(scaled_vehicle_data_inputs, centers = 2, nstart = 50)
 clusplot(scaled_vehicle_data, silhouette_gap_kmean$cluster, color = T, shade = T, labels = 4)
 comparison_table_silhouette_gap <- table(scaled_vehicle_data_output$Class, silhouette_gap_kmean$cluster)
@@ -113,4 +115,5 @@ confusionMatrix(data = predictions_as_factor_manual, reference = ground_truth_as
 confusionMatrix(data = predictions_as_factor_elbow, reference = ground_truth_as_factor, mode = 'prec_recall')
 confusionMatrix(data = predictions_as_factor_sg, reference = ground_truth_as_factor, mode = 'prec_recall')
 
+# get thee cluster centers
 elbow_clusters <- elbow_kmean$centers
