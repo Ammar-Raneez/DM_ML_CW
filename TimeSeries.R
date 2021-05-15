@@ -50,7 +50,7 @@ perform_neuralnet_ar_two <- function(seed, order, new_col_name) {
   test <- na.omit(scaled_exchange_data_shifted[test_index:500, ])
   
   set.seed(seed) 
-  nn_trial <- neuralnet(rate ~ rate_1, data = train, hidden = c(6, 6), act.fct = "logistic", err.fct = "sse", lifesign = "full", learningrate = 0.08, rep = 10, linear.output = T)
+  nn_trial <- neuralnet(rate ~ rate_2, data = train, hidden = c(6, 6), act.fct = "logistic", err.fct = "sse", lifesign = "full", learningrate = 0.08, rep = 10, linear.output = T)
   nn_trial.test_prediction <- predict(nn_trial, test)
   
   rmse_nn_trial <- round(rmse(test[, 1], nn_trial.test_prediction), digits = 4)
